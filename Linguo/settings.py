@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
-# django-insecure-k(-th3*6_jasjrf=*4mg(_iecfd@r_xuzoyzv+9d0fewjc9^*d"
+SECRET_KEY = "django-insecure-k(-th3*6_jasjrf=*4mg(_iecfd@r_xuzoyzv+9d0fewjc9^*d"
+ 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = "False"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = ("ALLOWED_HOSTS", "")
 
 
 # Application definition
@@ -86,9 +86,8 @@ DATABASES = {
     }
 }
 
-database_url = os.environ.get("DATABASE_URL")
+DATABASES ["default"] = dj_database_url.parse("postgresql://test_2li2_user:IIquggocJLMjy1ueVRT4RQYKPIwT3cSX@dpg-cqo1uoij1k6c73atds7g-a.oregon-postgres.render.com/test_2li2")
 
-DATABASES ["default"] = dj_database_url.parse(database_url)
 # 
 
 # Password validation
