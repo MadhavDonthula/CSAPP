@@ -1,0 +1,22 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Home</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'Learn_Linguo/css/home.css' %}" />
+  </head>
+  <body>
+    <h1>Assignments</h1>
+    <div>
+        {% for assignment in assignments %}
+        <div> 
+        <a href="{% url "record_audio" assignment.id %}">{{ assignment.name }}</a>
+        </div>
+        {% endfor %}
+    </div>
+  </body>
+</html>

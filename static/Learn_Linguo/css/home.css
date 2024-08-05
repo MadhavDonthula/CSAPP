@@ -1,0 +1,11 @@
+body {
+  background-color: #e6e6fa;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #333;
+  display: flex;
+  justify-content: center;
+  margin-top: 8rem;
+}

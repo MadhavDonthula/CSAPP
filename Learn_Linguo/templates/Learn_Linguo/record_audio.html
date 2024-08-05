@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Record Audio</title>
+  </head>
+  <body>
+    <h1>Record Audio for {{assignment.name}}</h1>
+    <p>{{ assignment.reference_text }}</p>
+    <button id="startButton">Start Speaking</button>
+    <button id="stopButton" disabled>Done!</button>
+    <!-- Later add the functionality where you can only see this after clicking "Start Speaking"-->
+    <form id="audioForm" method="post" action="{% url "save_audio" %}"> 
+        {% csrf_token %}
+    <input type="hidden" name="audio_data" id="audio_data" />
+    <input type="hidden" name="assignment_id" value="{{assignment.id}}" />
+    </form>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document
+        .getElementById("startButton")
+        .addEventListener("click", async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                });
+                mediaRecorder = new MediaRecorder(stream)
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                }
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, {type: "audio/wav"})
+                    const reader = new FileReader()
+                    reader.readAsArrayBuffer(audioBlob)
+                    reader.onloadend = () => {
+                        const base64String = btoa(new Uint8Array(reader.result).reduce(
+                            (data, byte) => data + String.fromCharCode(byte), ""
+                        ))
+                        document.getElementById("audio_data").value = base64String
+                        document.getElementById("audioForm").submit();
+
+                    }
+                }
+                mediaRecorder.start();
+                document.getElementById("stopButton").disabled = false;
+                document.getElementById("startButton").disabled = true;
+            }
+            catch (error) {
+                console.error ("error accessing audio", error)
+            }
+        } )
+
+        document.getElementById("stopButton").addEventListener("click", () => {
+            try {
+                if (mediaRecorder) {
+                    mediaRecorder.stop()
+                    document.getElementById("stopButton").disabled = true
+                }
+            }
+                catch (error) {
+                    console.error("error stopping the recording", error)
+                }
+            }
+        )
+    </script>
+  </body>
+</html>
