@@ -3,3 +3,4 @@ openai_whisper==20231117
 whisper==1.1.10
 gunicorn
 dj_database_url
+psycopg2
