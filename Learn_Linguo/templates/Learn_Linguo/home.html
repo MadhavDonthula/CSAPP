@@ -7,14 +7,14 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{% static 'Learn_Linguo/css/home.css' %}" />
+      href="{% static 'home.css' %}" />
   </head>
   <body>
     <h1>Assignments</h1>
-    <div>
+    <div class="container">
         {% for assignment in assignments %}
-        <div> 
-        <a href="{% url "record_audio" assignment.id %}">{{ assignment.name }}</a>
+        <div class="box" onClick="window.location.href='{% url "record_audio" assignment.id %}'"> 
+        <h4>{{ assignment.name }}</h4>
         </div>
         {% endfor %}
     </div>

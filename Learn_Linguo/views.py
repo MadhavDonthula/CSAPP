@@ -5,7 +5,7 @@ import whisper
 import string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from .models import Assignment
+from .models import Assignment, QuestionAnswer
 
 def home(request):
     assignments = Assignment.objects.all()
@@ -13,7 +13,9 @@ def home(request):
 
 def record_audio(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
-    return render(request, "Learn_Linguo/record_audio.html", {"assignment": assignment})
+    questions = assignment.questions.all()
+    return render(request, "Learn_Linguo/record_audio.html", {"assignment": assignment, "questions": questions})
+
 
 def save_audio(request):
     if request.method == "POST":
@@ -25,26 +27,34 @@ def save_audio(request):
         
         assignment_id = int(assignment_id)
 
-    try: 
-        if audio_data:
-            audio_bytes = base64.b64decode(audio_data)
-            with open("temp_audio.wav", "wb") as f:
-                f.write(audio_bytes)
+        try:
+            if audio_data:
+                # Decode audio data and save it as a WAV file
+                audio_bytes = base64.b64decode(audio_data)
+                with open("temp_audio.wav", "wb") as f:
+                    f.write(audio_bytes)
 
-            model = whisper.load_model("base")
-            result = model.transcribe("temp_audio.wav")
-            transcribed_text = result["text"]
-            assignment = get_object_or_404(Assignment, id=assignment_id)
-            reference_text = assignment.reference_text
+                # Load the Whisper model
+                model = whisper.load_model("medium")
 
-            missing_words = compare_texts(transcribed_text, reference_text)
+                # Transcribe the audio with language set to French
+                result = model.transcribe("temp_audio.wav", language="fr")
+                transcribed_text = result["text"]
 
-            return HttpResponse(f"Transcribed Text: {transcribed_text}\n Reference Text: {reference_text} \n Missing Words: {missing_words}")
-        else:
-            return HttpResponse("Error: Invalid audio data format")
-    except Exception as e:
-        return HttpResponse(f"Error:{str(e)}")
+                # Retrieve the assignment and reference text
+                assignment = get_object_or_404(Assignment, id=assignment_id)
+                reference_text = " ".join([qa.answer for qa in assignment.questions.all()])
+
+                # Compare the transcribed text with the reference text
+                missing_words = compare_texts(transcribed_text, reference_text)
+
+                return HttpResponse(f"Transcribed Text: {transcribed_text}\n Reference Text: {reference_text} \n Missing Words: {missing_words}")
+            else:
+                return HttpResponse("Error: Invalid audio data format")
+        except Exception as e:
+            return HttpResponse(f"Error: {str(e)}")
     return HttpResponse("No audio data received")
+
 
 def compare_texts(transcribed_text, reference_text):
     def normalize_text(text):
